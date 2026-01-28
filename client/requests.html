@@ -276,7 +276,7 @@
                             : ''
                         }
             ${req.status === 'accepted' && false // Manual complete disabled in favor of quiz
-                            ? `<button class="btn btn-success btn-sm" onclick="completeRequest('${req._id}')">Mark as Completed (+5 🪙)</button>`
+                            ? `<button class="btn btn-success btn-sm" onclick="completeRequest('${req._id}')">Mark as Completed (+3 🪙)</button>`
                             : ''
                         }
           </div>
@@ -294,7 +294,7 @@
                     }
 
                     container.innerHTML = requests.map(req => `
-        <div class="card mb-3" style="padding: 1.5rem;">
+                        < div class= "card mb-3" style = "padding: 1.5rem;" >
           <div class="d-flex justify-between align-center mb-3">
             <div>
               <h3 style="margin: 0;">${req.mentorId.name}</h3>
@@ -303,7 +303,7 @@
             <span class="badge ${getStatusBadgeClass(req.status)}">${req.status.toUpperCase()}</span>
           </div>
 
-          <!-- Status Timeline -->
+          <!--Status Timeline-- >
           <div class="status-timeline mb-3">
             <div class="step ${req.status === 'pending' || req.status === 'accepted' || req.status === 'completed' ? 'active' : ''}">
                 <div class="dot"></div>
@@ -328,8 +328,8 @@
             ${req.quizScore !== null && req.quizScore !== undefined ? `<p style="margin: 0.5rem 0 0 0; color: var(--success); font-weight: bold;">✅ Quiz Passed: ${req.quizScore}/${req.quiz?.questions?.length || 3}</p>` : ''}
           </div>
 
-          <!-- Session Notes Section -->
-          ${(req.status === 'accepted' || req.status === 'completed') && req.sessionNotes ? `
+          <!--Session Notes Section-- >
+                    ${(req.status === 'accepted' || req.status === 'completed') && req.sessionNotes ? `
             <div class="session-notes mt-3">
                 <label class="form-label">Mentor's Session Notes</label>
                 <div style="padding: 0.75rem; background: var(--bg-secondary); border-radius: 0.5rem; font-size: 0.9rem;">
@@ -337,23 +337,23 @@
                 </div>
             </div>
           ` : ''}
-          
-          <div class="mt-3 pt-3" style="border-top: 1px solid var(--border-color);">
-            ${req.status === 'accepted' && req.quiz && req.quiz.isEnabled && req.quizScore === null
+
+                <div class="mt-3 pt-3" style="border-top: 1px solid var(--border-color);">
+                    ${req.status === 'accepted' && req.quiz && req.quiz.isEnabled && req.quizScore === null
                             ? `<button class="btn btn-primary w-100" onclick='openTakeQuizModal("${req._id}", ${JSON.stringify(req.quiz)})'>📝 Take Final Quiz</button>`
                             : ''
                         }
-            ${req.status === 'accepted' && (!req.quiz || !req.quiz.isEnabled)
+                    ${req.status === 'accepted' && (!req.quiz || !req.quiz.isEnabled)
                             ? `<p class="text-muted text-center" style="font-size: 0.9rem;">Wait for mentor to assign the completion quiz.</p>`
                             : ''
                         }
-            ${req.status === 'completed'
+                    ${req.status === 'completed'
                             ? `<button class="btn btn-primary btn-sm" onclick="openFeedbackModal('${req._id}', '${req.mentorId._id}')">⭐ Rate Mentorship</button>`
                             : ''
                         }
-          </div>
-        </div>
-      `).join('');
+                </div>
+        </div >
+                    `).join('');
                 }
 
                 // Get status badge class
@@ -369,7 +369,7 @@
                 // Accept request
                 async function acceptRequest(requestId) {
                     try {
-                        const response = await fetch(`${API_URL}/requests/${requestId}/accept`, {
+                        const response = await fetch(`${API_URL} /requests/${requestId}/accept`, {
                             method: 'PUT'
                         });
 

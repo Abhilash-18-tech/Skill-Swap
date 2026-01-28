@@ -168,23 +168,23 @@ router.put('/:id/complete', async (req, res) => {
         request.completedAt = new Date();
         await request.save();
 
-        // Award 5 coins to mentor
+        // Award 3 coins to mentor
         const mentor = await User.findById(request.mentorId).populate('skillId');
-        mentor.coins += 5;
+        mentor.coins += 3;
         await mentor.save();
 
         // Log earn transaction
         const transaction = new Transaction({
             userId: mentor._id,
             type: 'earn',
-            amount: 5,
+            amount: 3,
             description: `Session Expert Reward (Completed mentorship)`
         });
         await transaction.save();
 
         res.json({
             success: true,
-            message: 'Mentorship completed successfully. Mentor earned 5 coins!',
+            message: 'Mentorship completed successfully. Mentor earned 3 coins!',
             data: request,
             mentorCoins: mentor.coins
         });
@@ -346,17 +346,17 @@ router.post('/:id/quiz/submit', async (req, res) => {
             request.status = 'completed';
             request.completedAt = new Date();
 
-            // Award 5 coins to mentor (Logic duplicated from complete route)
+            // Award 3 coins to mentor (Logic duplicated from complete route)
             // Ideally extract this to a helper, but for MVP keeping it inline
             const mentor = await User.findById(request.mentorId);
             if (mentor) {
-                mentor.coins += 5;
+                mentor.coins += 3;
                 await mentor.save();
 
                 const transaction = new Transaction({
                     userId: mentor._id,
                     type: 'earn',
-                    amount: 5,
+                    amount: 3,
                     description: `Session Expert Reward (Quiz Passed by Learner)`
                 });
                 await transaction.save();
