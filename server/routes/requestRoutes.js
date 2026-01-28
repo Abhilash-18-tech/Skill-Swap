@@ -515,4 +515,211 @@ router.post('/:id/schedule', async (req, res) => {
     }
 });
 
+// ========================================
+// QUIZ ROUTES (HACKATHON MVP)
+// ========================================
+
+// @route   POST /api/requests/:id/quiz
+// @desc    Mentor creates a quiz for the mentorship
+// @access  Public (should verify mentor in production)
+router.post('/:id/quiz', async (req, res) => {
+    try {
+        const { questions } = req.body;
+        const requestId = req.params.id;
+
+        // Validate questions
+        if (!questions || !Array.isArray(questions) || questions.length < 3 || questions.length > 5) {
+            return res.status(400).json({
+                success: false,
+                message: 'Quiz must have 3-5 questions'
+            });
+        }
+
+        // Validate each question
+        for (const q of questions) {
+            if (!q.text || !q.options || q.options.length < 2 || q.correctAnswer === undefined) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Each question must have text, at least 2 options, and a correct answer index'
+                });
+            }
+        }
+
+        // Find and update request
+        const request = await MentorshipRequest.findById(requestId);
+        if (!request) {
+            return res.status(404).json({
+                success: false,
+                message: 'Request not found'
+            });
+        }
+
+        if (request.status !== 'accepted') {
+            return res.status(400).json({
+                success: false,
+                message: 'Can only create quiz for accepted requests'
+            });
+        }
+
+        // Save quiz
+        request.quiz = {
+            questions: questions.map(q => ({
+                text: q.text,
+                options: q.options,
+                correctAnswer: q.correctAnswer
+            })),
+            isEnabled: true
+        };
+
+        await request.save();
+
+        res.json({
+            success: true,
+            message: 'Quiz created successfully',
+            data: { quizEnabled: true, questionCount: questions.length }
+        });
+    } catch (error) {
+        console.error('Error creating quiz:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+});
+
+// @route   GET /api/requests/:id/quiz
+// @desc    Get quiz for a request (without correct answers for learner)
+// @access  Public
+router.get('/:id/quiz', async (req, res) => {
+    try {
+        const request = await MentorshipRequest.findById(req.params.id);
+
+        if (!request) {
+            return res.status(404).json({
+                success: false,
+                message: 'Request not found'
+            });
+        }
+
+        if (!request.quiz || !request.quiz.isEnabled) {
+            return res.status(404).json({
+                success: false,
+                message: 'No quiz available for this request'
+            });
+        }
+
+        // Return quiz without correct answers
+        const quizForLearner = {
+            questions: request.quiz.questions.map(q => ({
+                text: q.text,
+                options: q.options
+            })),
+            totalQuestions: request.quiz.questions.length,
+            passScore: 80
+        };
+
+        res.json({
+            success: true,
+            data: quizForLearner
+        });
+    } catch (error) {
+        console.error('Error fetching quiz:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+});
+
+// @route   POST /api/requests/:id/quiz/submit
+// @desc    Learner submits quiz answers
+// @access  Public (should verify learner in production)
+router.post('/:id/quiz/submit', async (req, res) => {
+    try {
+        const { answers } = req.body; // Array of answer indices
+        const requestId = req.params.id;
+
+        const request = await MentorshipRequest.findById(requestId);
+
+        if (!request) {
+            return res.status(404).json({
+                success: false,
+                message: 'Request not found'
+            });
+        }
+
+        if (!request.quiz || !request.quiz.isEnabled) {
+            return res.status(400).json({
+                success: false,
+                message: 'No quiz available'
+            });
+        }
+
+        if (!answers || answers.length !== request.quiz.questions.length) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid answers submitted'
+            });
+        }
+
+        // Calculate score
+        let correctCount = 0;
+        request.quiz.questions.forEach((question, index) => {
+            if (answers[index] === question.correctAnswer) {
+                correctCount++;
+            }
+        });
+
+        const totalQuestions = request.quiz.questions.length;
+        const scorePercentage = (correctCount / totalQuestions) * 100;
+        const passed = scorePercentage >= 80;
+
+        // Save quiz score
+        request.quizScore = correctCount;
+
+        // If passed, mark as completed and award coins
+        if (passed) {
+            request.status = 'completed';
+            request.completedAt = new Date();
+
+            // Award 5 coins to mentor
+            const mentor = await User.findById(request.mentorId);
+            if (mentor) {
+                mentor.coins += 5;
+                await mentor.save();
+
+                // Log transaction
+                const transaction = new Transaction({
+                    userId: request.mentorId,
+                    type: 'earn',
+                    amount: 5,
+                    description: `Mentorship Completed (Quiz Passed: ${correctCount}/${totalQuestions})`
+                });
+                await transaction.save();
+            }
+        }
+
+        await request.save();
+
+        res.json({
+            success: true,
+            data: {
+                score: correctCount,
+                total: totalQuestions,
+                percentage: scorePercentage,
+                passed,
+                message: passed
+                    ? `Congratulations! You passed with ${scorePercentage.toFixed(0)}%`
+                    : `You scored ${scorePercentage.toFixed(0)}%. You need 80% to pass. Please try again.`
+            }
+        });
+    } catch (error) {
+        console.error('Error submitting quiz:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+});
+
 module.exports = router;
