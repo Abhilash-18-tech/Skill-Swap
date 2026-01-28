@@ -141,7 +141,7 @@
                             ${user.bio || 'This expert hasn\'t provided a bio yet, but they are ready to help you master new skills!'}
                         </p>
                         
-                        ${user.socialLinks ? `
+                        ${(user.socialLinks && (user.socialLinks.linkedin || user.socialLinks.github || user.socialLinks.portfolio)) ? `
                         <div class="d-flex gap-3">
                             ${user.socialLinks.linkedin ? `<a href="${user.socialLinks.linkedin}" target="_blank" class="social-icon" title="LinkedIn">in</a>` : ''}
                             ${user.socialLinks.github ? `<a href="${user.socialLinks.github}" target="_blank" class="social-icon" title="GitHub">gh</a>` : ''}
