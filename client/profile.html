@@ -257,7 +257,9 @@
                     document.getElementById('profile-coins').textContent = user.coins;
 
                     if (user.totalRatingsCount > 0) {
-                        document.getElementById('profile-rating').innerHTML = `<strong style="color: #f59e0b;">⭐ ${user.averageRating.toFixed(1)}</strong> (${user.totalRatingsCount} ratings)`;
+                        document.getElementById('profile-rating').innerHTML = `<strong style="color: #f59e0b; font-size: 1.1rem;">⭐ ${user.averageRating.toFixed(1)}</strong> <span class="text-muted">(${user.totalRatingsCount} reviews)</span>`;
+                    } else {
+                        document.getElementById('profile-rating').innerHTML = `<span class="badge badge-secondary">New</span> <span class="text-muted" style="font-size: 0.9rem;">(No ratings yet)</span>`;
                     }
 
                     displaySkills(user.skillsOffered, 'offered-skills-list', 'badge-warning');
