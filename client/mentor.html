@@ -122,30 +122,30 @@
 
             container.innerHTML = `
                 <div class="mentor-profile-header">
-                    <div class="mentor-avatar-large">${initials}</div>
                     <div style="flex: 1;">
-                        <div class="d-flex justify-between align-center mb-2">
-                            <h1 style="margin: 0;">${user.name}</h1>
-                            <div class="coin-badge" style="padding: 0.75rem 1.5rem; font-size: 1.1rem;">
+                        <div class="d-flex align-center gap-3 mb-2">
+                            <h1 style="margin: 0; line-height: 1.2;">${user.name}</h1>
+                            <div class="coin-badge" style="padding: 0.5rem 1rem; font-size: 1rem; white-space: nowrap;">
                                 🪙 ${user.coins} Coins
                             </div>
-                            </div>
                         </div>
+                        
                         <p class="text-muted" style="font-size: 1.1rem; margin-bottom: 0.5rem;">${user.email}</p>
                         
-                        <div class="d-flex gap-3 text-muted mb-3" style="font-size: 0.9rem;">
+                        <div class="d-flex gap-3 text-muted mb-3" style="font-size: 0.9rem; align-items: center;">
                             <span>📅 Joined ${new Date(user.createdAt).toLocaleDateString()}</span>
                             <span>•</span>
                             <span>🕒 ${formatLastActive(user.lastActiveAt)}</span>
                         </div>
 
-                        <div class="rating-stars mb-3">
+                        <div class="rating-stars mb-4">
                             ${'★'.repeat(Math.round(user.averageRating || 0))}${'☆'.repeat(5 - Math.round(user.averageRating || 0))}
                             <span style="color: var(--text-muted); font-size: 1rem; font-weight: 500; margin-left: 0.5rem;">
                                 (${(user.averageRating || 0).toFixed(1)} Avg Rating)
                             </span>
                         </div>
-                        <p style="font-size: 1.2rem; line-height: 1.6; color: var(--text-body); max-width: 800px; margin-bottom: 1.5rem;">
+                        
+                        <p style="font-size: 1.15rem; line-height: 1.6; color: var(--text-body); max-width: 90%; margin-bottom: 1.5rem;">
                             ${user.bio || 'This expert hasn\'t provided a bio yet, but they are ready to help you master new skills!'}
                         </p>
                         
@@ -157,6 +157,9 @@
                         </div>
                         ` : ''}
                     </div>
+
+                    <!-- Avatar Moved to Right -->
+                    <div class="mentor-avatar-large" style="margin-left: 2rem;">${initials}</div>
                 </div>
 
                 <div class="grid grid-3">
