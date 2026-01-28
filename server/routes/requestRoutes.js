@@ -17,7 +17,7 @@ const Transaction = require('../models/Transaction');
 // @access  Public
 router.post('/', async (req, res) => {
     try {
-        const { learnerId, mentorId, skillId, message, suggestedDate, suggestedTime } = req.body;
+        const { learnerId, mentorId, skillId, message } = req.body;
 
         // Validate required fields
         if (!learnerId || !mentorId || !skillId) {
@@ -80,8 +80,6 @@ router.post('/', async (req, res) => {
             mentorId,
             skillId,
             message: message || '',
-            suggestedDate,
-            suggestedTime,
             status: 'pending'
         });
 
