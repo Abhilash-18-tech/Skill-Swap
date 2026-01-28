@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Profile | SkillSwap</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand">
+                <img src="img/logo.png" alt="SkillSwap" class="brand-logo">
+            </a>
+            <ul class="navbar-nav">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="search.html" class="nav-link">Find Mentors</a></li>
+                <li><a href="community.html" class="nav-link">Communities</a></li>
+                <li><a href="redeem.html" class="nav-link">Redeem</a></li>
+                <li><a href="profile.html" class="nav-link">My Profile</a></li>
+                <li><a href="requests.html" class="nav-link">My Requests</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container" style="padding: 4rem 2rem;">
+        <div id="no-user" style="display: none; margin-bottom: 2rem;">
+            <div class="card" style="background: var(--primary-light); color: var(--primary); border: none;">
+                <strong>Note:</strong> Please login to request mentorship from this expert.
+            </div>
+        </div>
+
+        <div id="mentor-profile-container">
+            <div class="loading-container p-5 text-center">
+                <div class="spinner"></div> Loading expert profile...
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="index.html" class="navbar-brand">
+                        <img src="img/logo.png" alt="SkillSwap" class="brand-logo">
+                    </a>
+                    <p>Connecting curious minds with industry experts. The most trusted platform for professional skill
+                        exchange.</p>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Platform</h4>
+                    <ul class="footer-links">
+                        <li><a href="search.html" class="footer-link">Find Mentors</a></li>
+                        <li><a href="community.html" class="footer-link">Communities</a></li>
+                        <li><a href="redeem.html" class="footer-link">Rewards</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="profile.html" class="footer-link">My Account</a></li>
+                        <li><a href="requests.html" class="footer-link">Help Center</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-heading">Join The Vision</h4>
+                    <div class="footer-social">
+                        <a href="https://linkedin.com/in/abhilash-tech" target="_blank" class="social-icon"
+                            title="LinkedIn">in</a>
+                        <a href="https://github.com/Abhilash-18-tech" target="_blank" class="social-icon"
+                            title="GitHub">gh</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 SkillSwap Innovation Lab.</p>
+                <div class="d-flex gap-2">
+                    <span>Build #CODE-CRAFTERS</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        const API_URL = '/api';
+        const urlParams = new URLSearchParams(window.location.search);
+        const mentorId = urlParams.get('id');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!mentorId) {
+                window.location.href = 'search.html';
+                return;
+            }
+            loadMentorProfile();
+        });
+
+        async function loadMentorProfile() {
+            const container = document.getElementById('mentor-profile-container');
+
+            try {
+                const res = await fetch(`${API_URL}/users/${mentorId}`);
+                const result = await res.json();
+
+                if (result.success) {
+                    const mentor = result.data;
+                    renderProfile(mentor);
+                } else {
+                    container.innerHTML = `<div class="card p-5 text-center"><h3>${result.message}</h3><a href="search.html" class="btn btn-secondary mt-3">Back to Search</a></div>`;
+                }
+            } catch (err) {
+                container.innerHTML = `<div class="card p-5 text-center text-danger"><h3>Failed to load profile</h3></div>`;
+            }
+        }
+
+        function renderProfile(user) {
+            const container = document.getElementById('mentor-profile-container');
+            const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+
+            container.innerHTML = `
+                <div class="mentor-profile-header">
+                    <div class="mentor-avatar-large">${initials}</div>
+                    <div style="flex: 1;">
+                        <div class="d-flex justify-between align-center mb-2">
+                            <h1 style="margin: 0;">${user.name}</h1>
+                            <div class="coin-badge" style="padding: 0.75rem 1.5rem; font-size: 1.1rem;">
+                                🪙 ${user.coins} Coins
+                            </div>
+                        </div>
+                        <p class="text-muted" style="font-size: 1.1rem; margin-bottom: 1rem;">${user.email}</p>
+                        <div class="rating-stars mb-3">
+                            ${'★'.repeat(Math.round(user.averageRating || 0))}${'☆'.repeat(5 - Math.round(user.averageRating || 0))}
+                            <span style="color: var(--text-muted); font-size: 1rem; font-weight: 500; margin-left: 0.5rem;">
+                                (${(user.averageRating || 0).toFixed(1)} Avg Rating)
+                            </span>
+                        </div>
+                        <p style="font-size: 1.2rem; line-height: 1.6; color: var(--text-body); max-width: 800px;">
+                            ${user.bio || 'This expert hasn\'t provided a bio yet, but they are ready to help you master new skills!'}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3 class="mb-4">💡 Skills Offered</h3>
+                        <div class="d-flex flex-wrap gap-2" id="skills-offered">
+                            ${(user.skillsOffered || []).length > 0
+                    ? user.skillsOffered.map(s => `<span class="skill-tag">${s.skillName} <span class="badge badge-primary" style="margin-left: 5px;">${s.level}</span></span>`).join('')
+                    : '<p class="text-muted">No skills listed yet.</p>'}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="mb-4">🎯 Skills Interested In</h3>
+                        <div class="d-flex flex-wrap gap-2" id="skills-wanted">
+                            ${(user.skillsWanted || []).length > 0
+                    ? user.skillsWanted.map(s => `<span class="skill-tag" style="background: var(--bg-tertiary);">${s.skillName}</span>`).join('')
+                    : '<p class="text-muted">No interests listed yet.</p>'}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4 p-5 text-center" style="background: var(--primary-light); border: 1px dashed var(--primary);">
+                    <h2>Inspired to Learn?</h2>
+                    <p class="text-muted mb-4">Request a mentorship session with ${user.name.split(' ')[0]} and start your masterclass today.</p>
+                    <button class="btn btn-primary btn-lg" onclick="window.location.href='search.html?mentor=${user._id}'">Find in Search & Request</button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

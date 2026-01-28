@@ -172,7 +172,7 @@
                 const highlightStyle = isHighlighted ? 'border: 2px solid var(--warning); box-shadow: var(--shadow-xl); transform: scale(1.02);' : '';
 
                 return `
-                        <div class="card" style="${highlightStyle}">
+                        <div class="card mentor-card" style="${highlightStyle}" onclick="window.location.href='mentor.html?id=${item.mentor._id}'">
                             <div class="card-header">
                                 <div class="d-flex justify-between align-center">
                                     <div>
@@ -201,7 +201,7 @@
                                 <div class="mt-4">
                                     ${item.mentor._id === currentUserId
                         ? '<p class="text-muted text-center"><em>This is you!</em></p>'
-                        : `<button class="btn btn-primary w-100" onclick="openRequestModal('${item.mentor._id}', '${item.mentor.name}', '${item.skill._id}', '${item.skill.skillName}')">Request Mentorship</button>`
+                        : `<button class="btn btn-primary w-100" onclick="event.stopPropagation(); openRequestModal('${item.mentor._id}', '${item.mentor.name}', '${item.skill._id}', '${item.skill.skillName}')">Request Mentorship</button>`
                     }
                                 </div>
                             </div>
