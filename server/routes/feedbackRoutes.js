@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Feedback = require('../models/Feedback');
 const MentorshipRequest = require('../models/MentorshipRequest');
+const User = require('../models/User');
 
 /**
  * Feedback Routes
