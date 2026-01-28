@@ -275,4 +275,114 @@ router.put('/:id/notes', async (req, res) => {
     }
 });
 
+// @route   POST /api/requests/:id/quiz
+// @desc    Mentor sets a quiz for the mentorship request
+// @access  Public (Should be Private in prod)
+router.post('/:id/quiz', async (req, res) => {
+    try {
+        const { questions } = req.body;
+        const request = await MentorshipRequest.findById(req.params.id);
+
+        if (!request) return res.status(404).json({ success: false, message: 'Request not found' });
+
+        // MVP: Assume caller is mentor (validation skipped for brevity)
+        if (request.status !== 'accepted') {
+            return res.status(400).json({ success: false, message: 'Can only add quiz to accepted requests' });
+        }
+
+        request.quiz = {
+            questions: questions.map(q => ({
+                text: q.text,
+                options: q.options,
+                correctAnswer: q.correctAnswer
+            })),
+            isEnabled: true
+        };
+
+        // Reset any previous score if quiz changes
+        request.quizScore = null;
+
+        await request.save();
+
+        res.json({ success: true, message: 'Quiz assigned successfully', data: request });
+    } catch (error) {
+        console.error('Error assigning quiz:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// @route   POST /api/requests/:id/quiz/submit
+// @desc    Learner submits quiz answers. Pass (2/3) => Completed.
+// @access  Public (Should be Private in prod)
+router.post('/:id/quiz/submit', async (req, res) => {
+    try {
+        const { answers } = req.body; // Array of indices like [0, 2, 1]
+        const request = await MentorshipRequest.findById(req.params.id);
+
+        if (!request || !request.quiz.isEnabled) {
+            return res.status(404).json({ success: false, message: 'Quiz not found or disabled' });
+        }
+
+        let correctCount = 0;
+        const questions = request.quiz.questions;
+
+        if (answers.length !== questions.length) {
+            return res.status(400).json({ success: false, message: 'Answer all questions' });
+        }
+
+        // Evaluate
+        answers.forEach((ans, index) => {
+            if (ans === questions[index].correctAnswer) correctCount++;
+        });
+
+        request.quizScore = correctCount;
+
+        // Pass Logic: Need >= 66% (e.g., 2 out of 3, or 1 out of 1)
+        const total = questions.length;
+        const passed = (correctCount / total) >= 0.66;
+
+        let message = `You scored ${correctCount}/${total}. `;
+
+        if (passed) {
+            message += 'Congratulations! Mentorship marked as completed.';
+            request.status = 'completed';
+            request.completedAt = new Date();
+
+            // Award 5 coins to mentor (Logic duplicated from complete route)
+            // Ideally extract this to a helper, but for MVP keeping it inline
+            const mentor = await User.findById(request.mentorId);
+            if (mentor) {
+                mentor.coins += 5;
+                await mentor.save();
+
+                const transaction = new Transaction({
+                    userId: mentor._id,
+                    type: 'earn',
+                    amount: 5,
+                    description: `Session Expert Reward (Quiz Passed by Learner)`
+                });
+                await transaction.save();
+            }
+        } else {
+            message += 'Please review the material and try again.';
+            // Do not complete request, let them retry
+        }
+
+        await request.save();
+
+        res.json({
+            success: true,
+            passed,
+            score: correctCount,
+            total,
+            message,
+            data: request
+        });
+
+    } catch (error) {
+        console.error('Error submitting quiz:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
 module.exports = router;

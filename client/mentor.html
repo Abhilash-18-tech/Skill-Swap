@@ -129,8 +129,16 @@
                             <div class="coin-badge" style="padding: 0.75rem 1.5rem; font-size: 1.1rem;">
                                 🪙 ${user.coins} Coins
                             </div>
+                            </div>
                         </div>
-                        <p class="text-muted" style="font-size: 1.1rem; margin-bottom: 1rem;">${user.email}</p>
+                        <p class="text-muted" style="font-size: 1.1rem; margin-bottom: 0.5rem;">${user.email}</p>
+                        
+                        <div class="d-flex gap-3 text-muted mb-3" style="font-size: 0.9rem;">
+                            <span>📅 Joined ${new Date(user.createdAt).toLocaleDateString()}</span>
+                            <span>•</span>
+                            <span>🕒 ${formatLastActive(user.lastActiveAt)}</span>
+                        </div>
+
                         <div class="rating-stars mb-3">
                             ${'★'.repeat(Math.round(user.averageRating || 0))}${'☆'.repeat(5 - Math.round(user.averageRating || 0))}
                             <span style="color: var(--text-muted); font-size: 1rem; font-weight: 500; margin-left: 0.5rem;">
@@ -190,6 +198,19 @@
                     <button class="btn btn-primary btn-lg" onclick="window.location.href='search.html?mentor=${user._id}'">Find in Search & Request</button>
                 </div>
             `;
+        }
+
+        function formatLastActive(dateString) {
+            if (!dateString) return 'Offline';
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+
+            if (diffHours < 1) return 'Active recently';
+            if (diffHours < 24) return `Active ${diffHours} hours ago`;
+            return `Active ${diffDays} days ago`;
         }
     </script>
 </body>

@@ -48,6 +48,18 @@ const mentorshipRequestSchema = new mongoose.Schema({
     },
     completedAt: {
         type: Date
+    },
+    quiz: {
+        questions: [{
+            text: { type: String, required: true },
+            options: [{ type: String, required: true }], // 4 options usually
+            correctAnswer: { type: Number, required: true } // Index 0-3
+        }],
+        isEnabled: { type: Boolean, default: false }
+    },
+    quizScore: {
+        type: Number,
+        default: null // null not taken, or 0-3
     }
 });
 

@@ -9,38 +9,27 @@ const jwt = require('jsonwebtoken');
 // Secret key for JWT (In production, use environment variable)
 const JWT_SECRET = 'skillswap_secret_key_2024';
 
+const User = require('../models/User');
+
 const authMiddleware = async (req, res, next) => {
     try {
         // Get token from Authorization header
-        // Expected format: "Bearer <token>"
+        // ... (lines 14-38 omitted for brevity in replacement, but logically we just insert update here)
+        // Note: The previous lines are inside the function. I will target the end of successful verification. 
+
+        // Extract token and verify (restoring context)
         const authHeader = req.headers.authorization;
+        if (!authHeader) return res.status(401).json({ success: false, message: 'No token provided' });
 
-        if (!authHeader) {
-            return res.status(401).json({
-                success: false,
-                message: 'No token provided. Authorization denied.'
-            });
-        }
+        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+        if (!token) return res.status(401).json({ success: false, message: 'Invalid token format' });
 
-        // Extract token from "Bearer <token>"
-        const token = authHeader.startsWith('Bearer ')
-            ? authHeader.slice(7)
-            : authHeader;
-
-        if (!token) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid token format. Authorization denied.'
-            });
-        }
-
-        // Verify token
         const decoded = jwt.verify(token, JWT_SECRET);
-
-        // Attach userId to request object
         req.userId = decoded.userId;
 
-        // Continue to next middleware/route
+        // TRACK ACTIVE STATUS
+        await User.findByIdAndUpdate(req.userId, { lastActiveAt: new Date() });
+
         next();
     } catch (error) {
         console.error('Auth middleware error:', error);
