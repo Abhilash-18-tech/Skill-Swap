@@ -246,6 +246,7 @@
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
                     body: JSON.stringify({
+                        learnerId: currentUserId,
                         mentorId: selectedMentor,
                         skillId: selectedSkill,
                         message: message
