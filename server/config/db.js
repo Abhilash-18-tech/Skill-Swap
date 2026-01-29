@@ -7,8 +7,10 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
     try {
-        const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/skillswap';
-        const conn = await mongoose.connect(uri, {
+        // MongoDB connection string - use environment variable if available
+        const dbUrl = process.env.MONGO_URI || 'mongodb://localhost:27017/skillswap';
+        console.log(`📡 Connecting to: ${dbUrl.includes('mongodb+srv') ? 'Cloud MongoDB' : 'Local MongoDB'}`);
+        const conn = await mongoose.connect(dbUrl, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
