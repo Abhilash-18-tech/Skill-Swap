@@ -155,14 +155,13 @@ const updateNavbar = () => {
 
     if (isLoggedIn()) {
         const userName = localStorage.getItem('userName') || 'User';
-        // Add Logout and Profile if not present, and greeting
+        // Add attractive user greeting
         const authLinks = `
-            <li><a href="profile.html" class="nav-link ${window.location.pathname.includes('profile.html') ? 'active' : ''}">Hi, ${userName}</a></li>
-            <li><a href="#" onclick="logout(); return false;" class="nav-link">Logout</a></li>
+            <li><a href="profile.html" class="nav-link user-greeting ${window.location.pathname.includes('profile.html') ? 'active' : ''}">✨ Hi, ${userName}</a></li>
         `;
 
-        // Check if logout already exists to prevent duplicate
-        if (!navbarNav.innerHTML.includes('logout()')) {
+        // Use a flag to avoid multiple appends
+        if (!document.querySelector('.user-greeting')) {
             navbarNav.insertAdjacentHTML('beforeend', authLinks);
         }
     } else {
@@ -216,21 +215,36 @@ document.addEventListener('DOMContentLoaded', () => {
     handleAuthNavigation();
 });
 
-// Add CSS animations
+// Add CSS animations and styles
 const style = document.createElement('style');
 style.textContent = `
   @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
   @keyframes slideOut {
-    from {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateX(100px);
-    }
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100px); }
   }
-  .navbar-nav { display: flex; align-items: center; }
+  .navbar-nav { 
+    display: flex; 
+    align-items: center; 
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+  }
+  .nav-link { 
+    white-space: nowrap; 
+    font-size: 0.95rem;
+  }
+  .user-greeting {
+    background: linear-gradient(135deg, #4f46e5, #9333ea);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700 !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  [data-theme='dark'] .user-greeting {
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
   .theme-toggle { background: none; border: none; font-size: 1.25rem; cursor: pointer; padding: 0.5rem; border-radius: 50%; transition: background 0.3s; margin-left: 0.5rem; }
   .theme-toggle:hover { background: var(--bg-subtle); }
 `;
