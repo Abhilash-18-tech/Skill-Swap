@@ -227,25 +227,65 @@ style.textContent = `
     display: flex; 
     align-items: center; 
     flex-wrap: nowrap;
-    gap: 0.5rem;
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
   .nav-link { 
     white-space: nowrap; 
     font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 0.5rem 0.25rem;
+    opacity: 0.85;
+  }
+  .nav-link:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+    color: var(--primary) !important;
+  }
+  .nav-link.active {
+    opacity: 1;
+    font-weight: 700;
+    color: var(--primary) !important;
   }
   .user-greeting {
-    background: linear-gradient(135deg, #4f46e5, #9333ea);
+    background: linear-gradient(135deg, #6366f1, #a855f7);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 700 !important;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 0.5rem;
+    background-size: 200% auto;
+    transition: 0.5s;
+    opacity: 1 !important;
+  }
+  .user-greeting:hover {
+    background-position: right center;
+    transform: scale(1.05);
   }
   [data-theme='dark'] .user-greeting {
     background: linear-gradient(135deg, #818cf8, #c084fc);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  .theme-toggle { background: none; border: none; font-size: 1.25rem; cursor: pointer; padding: 0.5rem; border-radius: 50%; transition: background 0.3s; margin-left: 0.5rem; }
-  .theme-toggle:hover { background: var(--bg-subtle); }
+  .theme-toggle { 
+    background: var(--bg-subtle); 
+    border: 1px solid var(--border-subtle); 
+    font-size: 1.1rem; 
+    cursor: pointer; 
+    padding: 0.4rem; 
+    border-radius: 0.5rem; 
+    transition: all 0.3s; 
+    margin-left: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .theme-toggle:hover { 
+    background: var(--primary-light); 
+    transform: rotate(15deg);
+  }
 `;
 document.head.appendChild(style);
