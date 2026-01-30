@@ -68,7 +68,7 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 SkillSwap server running on port ${PORT}`);
-    console.log(`📡 API endpoints available at /api`);
+app.listen(PORT, () => {
+    console.log(`🚀 SkillSwap server running on http://localhost:${PORT}`);
+    console.log(`📡 API endpoints available at http://localhost:${PORT}/api`);
 });

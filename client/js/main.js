@@ -127,6 +127,57 @@ async function authenticatedFetch(url, options = {}) {
     });
 }
 
+// Route protection and navigation management
+const handleAuthNavigation = () => {
+    const isLoginPage = window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('register.html');
+    const isHomePage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
+    const isPublicPage = isLoginPage || isHomePage || window.location.pathname.endsWith('community.html') || window.location.pathname.endsWith('experiences.html');
+
+    // Redirect to login if accessing protected page while logged out
+    if (!isLoggedIn() && !isPublicPage) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Redirect to profile if accessing login/register while logged in
+    if (isLoggedIn() && isLoginPage) {
+        window.location.href = 'profile.html';
+        return;
+    }
+
+    updateNavbar();
+};
+
+// Update Navbar based on auth state
+const updateNavbar = () => {
+    const navbarNav = document.querySelector('.navbar-nav');
+    if (!navbarNav) return;
+
+    if (isLoggedIn()) {
+        const userName = localStorage.getItem('userName') || 'User';
+        // Add Logout and Profile if not present, and greeting
+        const authLinks = `
+            <li><a href="profile.html" class="nav-link ${window.location.pathname.includes('profile.html') ? 'active' : ''}">Hi, ${userName}</a></li>
+            <li><a href="#" onclick="logout(); return false;" class="nav-link">Logout</a></li>
+        `;
+
+        // Check if logout already exists to prevent duplicate
+        if (!navbarNav.innerHTML.includes('logout()')) {
+            navbarNav.insertAdjacentHTML('beforeend', authLinks);
+        }
+    } else {
+        // Add Login and Register if not present
+        const guestLinks = `
+            <li><a href="login.html" class="nav-link ${window.location.pathname.includes('login.html') ? 'active' : ''}">Login</a></li>
+            <li><a href="register.html" class="nav-link ${window.location.pathname.includes('register.html') ? 'active' : ''}">Register</a></li>
+        `;
+
+        if (!navbarNav.innerHTML.includes('login.html')) {
+            navbarNav.insertAdjacentHTML('beforeend', guestLinks);
+        }
+    }
+}
+
 // Theme Management
 const initTheme = () => {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -150,7 +201,9 @@ const initTheme = () => {
         // Append to the navbar (after the nav list)
         const navList = navbar.querySelector('.navbar-nav');
         if (navList) {
-            navList.appendChild(document.createElement('li')).appendChild(toggleBtn);
+            const li = document.createElement('li');
+            li.appendChild(toggleBtn);
+            navList.appendChild(li);
         } else {
             navbar.appendChild(toggleBtn);
         }
@@ -158,11 +211,15 @@ const initTheme = () => {
 }
 
 // Run init on load
-document.addEventListener('DOMContentLoaded', initTheme);
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    handleAuthNavigation();
+});
 
 // Add CSS animations
 const style = document.createElement('style');
 style.textContent = `
+  @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
   @keyframes slideOut {
     from {
       opacity: 1;
@@ -173,5 +230,8 @@ style.textContent = `
       transform: translateX(100px);
     }
   }
+  .navbar-nav { display: flex; align-items: center; }
+  .theme-toggle { background: none; border: none; font-size: 1.25rem; cursor: pointer; padding: 0.5rem; border-radius: 50%; transition: background 0.3s; margin-left: 0.5rem; }
+  .theme-toggle:hover { background: var(--bg-subtle); }
 `;
 document.head.appendChild(style);
