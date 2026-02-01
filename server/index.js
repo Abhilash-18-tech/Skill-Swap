@@ -20,6 +20,9 @@ app.use(cors()); // Enable CORS for frontend communication
 app.use(bodyParser.json()); // Parse JSON request bodies
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Initialize Clerk (optional - middleware is applied per route)
+// Clerk SDK is initialized globally and used in route middleware
+
 // Route for root - Redirect to login page instead of the home page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/login.html'));
@@ -29,7 +32,8 @@ app.get('/', (req, res) => {
 app.use(express.static(path.join(__dirname, '../client')));
 
 // API Routes
-app.use('/api/auth', require('./routes/authRoutes')); // Authentication routes
+app.use('/api/auth', require('./routes/authRoutes')); // Authentication routes (legacy JWT)
+app.use('/api/clerk-auth', require('./routes/clerkAuthRoutes')); // Clerk authentication routes
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/skills', require('./routes/skillRoutes'));
 app.use('/api/requests', require('./routes/requestRoutes'));

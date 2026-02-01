@@ -19,11 +19,24 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         trim: true
     },
+    clerkId: {
+        type: String,
+        unique: true,
+        sparse: true, // Allows null values while maintaining uniqueness
+        index: true
+    },
     password: {
         type: String,
-        required: true,
+        required: function () {
+            // Password is only required if clerkId is not present
+            return !this.clerkId;
+        },
         minlength: 6,
         select: false // Don't return password in queries by default
+    },
+    profilePicture: {
+        type: String,
+        default: ''
     },
     bio: {
         type: String,
